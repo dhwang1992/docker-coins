@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+{{- if eq .Values.name "rng" }}
+kind: DaemonSet
+{{- else }}
+kind: Deployment
+{{- end}}
+metadata:
+  name: {{ .Values.name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    projectname: "dockercoins"
+    environment: {{ .Values.namespace }}
+    servicename: {{ .Values.name }}
+spec:
+  {{- if not (eq .Values.name "rng") }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end}}
+  selector:
+    matchLabels:
+      projectname: "dockercoins"
+      environment: {{ .Values.namespace }}
+      servicename: {{ .Values.name }}
+  template:
+    metadata:
+      labels:
+        projectname: "dockercoins"
+        environment: {{ .Values.namespace }}
+        servicename: {{ .Values.name }}
+    spec:
+      containers:
+        - name: {{ .Values.name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: PROJECT_NAME
+              value: "dockercoins"
+            - name: ENVIRONMENT
+              value: {{ .Values.namespace }}
+            - name: PROJECT_NAME
+              value: {{ .Values.name }}
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          {{- if eq .Values.namespace "uat" }}
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          {{- end}}

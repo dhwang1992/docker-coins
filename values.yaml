@@ -1,0 +1,25 @@
+
+replicaCount: 1
+name: hasher
+namespace: dev
+image:
+repository: 127.0.0.1:32709/hasher
+tag: v0.1
+pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 80
+  labels:
+  projectname: dockercoins
+  # environment: dev
+  # servicename: hasher
+
+ingress:
+  enabled: false
+  devhosts:
+  - host: dev-webui.192.168.33.111.nip.io
+    paths: ['/']
+  uathosts:
+  - host: uat-webui.192.168.33.111.nip.io
+    paths: ['/']
